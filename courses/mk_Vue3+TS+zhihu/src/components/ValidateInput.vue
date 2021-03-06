@@ -47,7 +47,6 @@ export default defineComponent({
     modelValue: String
   },
   setup (props, context) {
-    console.log(context.attrs)
     const inputRef = reactive({
       message: '',
       value: props.modelValue || '',

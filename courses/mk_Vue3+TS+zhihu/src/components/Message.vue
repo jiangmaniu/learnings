@@ -42,7 +42,7 @@ export default defineComponent({
       return {
         'alert-primary': props.type === 'primary',
         'alert-danger': props.type === 'error',
-        'alert-suuccess': props.type === 'success'
+        'alert-success': props.type === 'success'
       }
     })
     return {

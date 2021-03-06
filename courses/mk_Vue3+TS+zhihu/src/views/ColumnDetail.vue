@@ -1,8 +1,8 @@
 <template>
-  <div class="column-detail-page w-75 mx-auto">
+  <div class="column-detail-page w-75 mx-auto" v-if="columnDetail">
     <div class="column-info row mb-4 border-bottom pb-4 align-items-center">
       <div class="col-3 text-center">
-        <img class="rounded-circle w-100" :src="columnDetail.avatar && columnDetail.avatar.url" :alt="columnDetail.title">
+        <img class="rounded-circle w-100" :src="columnDetail.avatar && columnDetail.avatar.fitUrl" :alt="columnDetail.title">
       </div>
       <div class="col-9">
         <h4>{{columnDetail.title}}</h4>
@@ -18,7 +18,8 @@
 import { computed, defineComponent, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-import { GlobalDataProps } from '../store'
+import { ColumnProps, GlobalDataProps } from '../store'
+import { generateFitUrl } from '@/utils/helper'
 import PostList from '../components/PostList.vue'
 export default defineComponent({
   name: 'ColumnDetail',
@@ -29,12 +30,18 @@ export default defineComponent({
     const store = useStore<GlobalDataProps>()
     const route = useRoute()
     const columnId = route.params.id
-    const columnDetail = computed(() => store.getters.getColumnById(columnId))
-    const columnPosts = computed(() => store.getters.getPostsByCid(columnId))
     onMounted(() => {
       store.dispatch('fetchColumn', columnId)
       store.dispatch('fetchPosts', columnId)
     })
+    const columnDetail = computed(() => {
+      const column = store.getters.getColumnById(columnId) as ColumnProps
+      if (column) {
+        generateFitUrl(column, 100, 100)
+      }
+      return column
+    })
+    const columnPosts = computed(() => store.getters.getPostsByCid(columnId))
     return {
       columnPosts,
       columnDetail

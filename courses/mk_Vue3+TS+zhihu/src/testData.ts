@@ -18,6 +18,7 @@ export interface PostProps {
   image?: string;
   createdAt: string;
   columnId: number;
+  author: string;
 }
 // export const testData: ColumnProps[] = [
 //   {

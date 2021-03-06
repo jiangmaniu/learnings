@@ -31,7 +31,6 @@ export default defineComponent({
   setup () {
     const store = useStore<GlobalDataProps>()
     const user = computed(() => store.state.user)
-    const token = computed(() => store.state.token)
     const isLoading = computed(() => store.state.loading)
     const error = computed(() => store.state.error)
 
@@ -39,13 +38,6 @@ export default defineComponent({
       const { status, message } = error.value
       if (status && message) {
         createMessage(message, 'error')
-      }
-    })
-
-    onMounted(() => {
-      if (token.value) {
-        axios.defaults.headers.common.Authorization = `Bearer ${token.value}`
-        store.dispatch('fetchCurrentUser')
       }
     })
 
