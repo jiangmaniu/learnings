@@ -9,6 +9,7 @@
       <li class="list-inline-item">
         <DropDown :title="`你好，${user.nickName}`" close-on-content-click>
           <DropDownItem><router-link to="/create-post" class="dropdown-item">新建文章</router-link></DropDownItem>
+          <DropDownItem><router-link :to="`/column/${user.column}`" class="dropdown-item">我的专栏</router-link></DropDownItem>
           <DropDownItem disabled><a href="#" class="dropdown-item">编辑资料</a></DropDownItem>
           <DropDownItem><button class="dropdown-item" @click="onClickLogout">退出登录</button></DropDownItem>
         </DropDown>

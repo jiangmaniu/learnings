@@ -4,8 +4,7 @@
       v-if="tag === 'input'"
       class="form-control"
       :class="{'is-invalid': inputRef.error}"
-      :value="inputRef.value"
-      @input="inputRef.onInput"
+      v-model="inputRef.value"
       @blur="inputRef.onBlurValidate"
       v-bind="$attrs"
     />
@@ -14,8 +13,7 @@
       v-else-if="tag === 'textarea'"
       class="form-control"
       :class="{'is-invalid': inputRef.error}"
-      :value="inputRef.value"
-      @input="inputRef.onInput"
+      v-model="inputRef.value"
       @blur="inputRef.onBlurValidate"
       v-bind="$attrs"
     />
@@ -24,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, reactive } from 'vue'
+import { computed, defineComponent, onMounted, PropType, reactive } from 'vue'
 import { emitter } from './validateForm.vue'
 interface RuleProp {
   type: 'required' | 'mail' | 'custom';
@@ -49,15 +47,13 @@ export default defineComponent({
   setup (props, context) {
     const inputRef = reactive({
       message: '',
-      value: props.modelValue || '',
+      value: computed({
+        get: () => props.modelValue || '',
+        set: (newVal: string) => context.emit('update:modelValue', newVal)
+      }),
       error: false,
       resetValue: () => {
         inputRef.value = ''
-      },
-      onInput: (e: KeyboardEvent) => {
-        const keyValue = (e.target as HTMLInputElement).value
-        inputRef.value = keyValue
-        context.emit('update:modelValue', keyValue)
       },
       onBlurValidate: () => {
         if (props.rule) {

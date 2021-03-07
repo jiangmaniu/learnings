@@ -1,5 +1,13 @@
 <template>
   <div class="post-detail w-75 mx-auto">
+    <Model
+      title="删除文章"
+      :visible="modelIsVisible"
+      @on-cancel="modelIsVisible = false"
+      @on-confirm="hideAndDelete"
+    >
+      <p>是否删除该文章?</p>
+    </Model>
     <img v-if="currentTitleImage" :src="currentTitleImage" class='my-4 rounded-lg img-fluid'>
     <div class="post-title" v-if="currentPost">
       <h2>{{currentPost.title}}</h2>
@@ -16,28 +24,33 @@
           type="button"
           class="btn btn-success"
         >编辑</router-link>
-        <!-- <router-link type="button" class="btn btn-danger">删除</router-link> -->
+        <button type="button" class="btn btn-danger" @click.prevent="modelIsVisible = true">删除</button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { GlobalDataProps, ImageProps, PostProps, UserProps } from '@/store'
+import { GlobalDataProps, ImageProps, PostProps, UserProps, ResponseType } from '@/store'
 import UserProfile from '../components/UserProfile.vue'
-import { computed, defineComponent, onMounted } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import MarkdownIt from 'markdown-it'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import Model from '../components/Model.vue'
+import createMessage from '@/components/createMessage'
 export default defineComponent({
   name: 'PostDetail',
   components: {
-    UserProfile
+    UserProfile,
+    Model
   },
   setup () {
     const store = useStore<GlobalDataProps>()
     const route = useRoute()
+    const router = useRouter()
     const postId = route.params.id
+    const modelIsVisible = ref(false)
     const md = new MarkdownIt()
     onMounted(() => {
       store.dispatch('fetchPost', postId)
@@ -65,7 +78,19 @@ export default defineComponent({
       }
       return ''
     })
+    const hideAndDelete = () => {
+      modelIsVisible.value = false
+      store.dispatch('deletePost', postId).then((rawData: ResponseType<PostProps>) => {
+        createMessage('删除成功，2秒后跳转专栏首页', 'success')
+        setTimeout(() => {
+          console.log(rawData)
+          router.push({ name: 'Column', params: { id: rawData.data.column } })
+        }, 2000)
+      })
+    }
     return {
+      hideAndDelete,
+      modelIsVisible,
       showEidtArea,
       currentHtml,
       currentPost,

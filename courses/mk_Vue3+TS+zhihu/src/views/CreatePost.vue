@@ -1,6 +1,6 @@
 <template>
   <div class="create-post-page">
-    <h4>新建文章</h4>
+    <h4>{{ isEditMode ? '编辑文章' : '新建文章' }}</h4>
     <ValidateForm @form-submit="onFormSubmit">
       <div class="mb-3">
         <Uploader
@@ -62,7 +62,6 @@ import ValidateForm from '../components/validateForm.vue'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import Uploader from '../components/Uploader.vue'
 import createMessage from '../components/createMessage'
-import axios from 'node_modules/axios'
 const titleRules: RulesProp = [
   {
     type: 'required',
@@ -88,7 +87,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const store = useStore<GlobalDataProps>()
-    const isEditMode = !!route.query.id
+    const isEditMode = ref(!!route.query.id)
     const uploadData = ref()
     let imageId = ''
     const postData = reactive({
@@ -107,8 +106,13 @@ export default defineComponent({
             if (imageId) {
               newPost.image = imageId
             }
-            store.dispatch('createPost', newPost).then(() => {
-              createMessage('创建成功，2秒后跳转到文章', 'success', 2000)
+            const actionName = isEditMode.value ? 'updatePost' : 'createPost'
+            const sendData = isEditMode.value ? {
+              id: route.query.id,
+              payload: newPost
+            } : newPost
+            store.dispatch(actionName, sendData).then(() => {
+              createMessage('提交成功，2秒后跳转到文章', 'success', 2000)
 
               setTimeout(() => {
                 router.push(`/column/${column}`)
@@ -132,7 +136,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      if (isEditMode) {
+      if (isEditMode.value) {
         store.dispatch('fetchPost', route.query.id).then((rs: ResponseType<PostProps>) => {
           const currentPost = rs.data
           if (currentPost.image) {
@@ -151,6 +155,7 @@ export default defineComponent({
     }
 
     return {
+      isEditMode,
       uploadCheck,
       onFileUploaded,
       ...toRefs(postData),
