@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="container"></div>
+  <button id="btn-change">change</button>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/snabbdom.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/snabbdom-class.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/snabbdom-props.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/snabbdom-style.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/snabbdom-eventlisteners.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/snabbdom/0.7.4/h.js"></script>
+  <script>
+    var data = [{
+    name: '张三',
+    age: '20',
+    address: '北京'
+  }, {
+    name: '李四',
+    age: '19',
+    address: '上海'
+  }, {
+    name: '王五',
+    age: '30',
+    address: '深圳'
+  }]
+
+  var vnode = null
+
+  var snabbdom = window.snabbdom
+  var patch = snabbdom.init({
+    snabbdom_class,
+    snabbdom_props,
+    snabbdom_style,
+    snabbdom_eventlisteners
+  })
+  var h = snabbdom.h
+
+  // 渲染函数
+  function render (data) {
+    // 生成vnode节点
+    const trs = []
+    // 生成头部表格
+    trs.push(
+      h('tr', {}, [
+        h('td', {}, 'name'),
+        h('td', {}, 'age'),
+        h('td', {}, 'address'),
+      ])
+    )
+
+    // 添加表格内容
+    data.forEach(function (item) {
+      trs.push(
+        h('tr', {}, [
+          h('td', {}, item.name),
+          h('td', {}, item.age),
+          h('td', {}, item.address),
+        ])
+      )
+    })
+
+    var newVNode = h('table', {}, trs)
+
+    // 判断 是否有旧的vnode
+    if (vnode) {
+      // 如果有则，直接替换旧vnode，让 snabbdom 执行 diff 计算
+      patch(vnode, newVNode)
+    } else {
+      // 如果没有旧vnode，说明是第一次渲染，此时将虚拟node添加到容器节点即可
+      var container = document.getElementById('#container')
+      patch(container, newVNode)
+    }
+
+    // 最后将 newVNode 赋值给旧的 vnode 供下一次渲染时替换
+    vnode = newVNode
+  }
+
+  // 页面加载完立刻执行的最初始渲染
+  render(data)
+
+  // 点击按钮更新数据并重新渲染
+  const btn = document.getElementById('#btn-change')
+  btn.addEventListener('click', function () {
+    data[1].age = 22
+    data[2].address = '广州'
+    // re-render 重新渲染
+    render(data)
+  })
+  </script>
+</body>
+</html>
